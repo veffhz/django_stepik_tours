@@ -3,8 +3,9 @@ from django.views.generic import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponseNotFound, HttpResponseServerError
 
-from data import tours
-from tours.data_helper import random_limit
+from data import tours, departures
+from tours.data_helper import find_min_max
+from tours.data_helper import random_limit, filter_tours
 
 
 class MainView(TemplateView):
@@ -20,15 +21,27 @@ class MainView(TemplateView):
 class DepartureView(TemplateView):
     template_name = 'departure.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(DepartureView, self).get_context_data(**kwargs)
+        departure = kwargs['departure']
+        filtered_tours = filter_tours(departure, tours)
+        context['tours'] = filtered_tours
+        context['from'] = departures[departure]
+        context['departure'] = departure
+        context['nights'] = find_min_max(filtered_tours, 'nights')
+        context['prices'] = find_min_max(filtered_tours, 'price')
+        return context
+
 
 class TourView(TemplateView):
     template_name = 'tour.html'
 
     def get_context_data(self, **kwargs):
         context = super(TourView, self).get_context_data(**kwargs)
-        tour = tours[1]
+        tour = tours[kwargs['tour_id']]
         context['tour'] = tour
         context['stars'] = tour['stars'] * '★'
+        context['from'] = departures[tour['departure']]
         return context
 
 
