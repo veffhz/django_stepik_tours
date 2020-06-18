@@ -1,5 +1,6 @@
 travel demo project with Django
 ==================
+[![Heroku](https://heroku-badge.herokuapp.com/?app=django-stepik-travel&style=flat)](https://django-stepik-travel.herokuapp.com)
 
 ##### features:
  - index page
