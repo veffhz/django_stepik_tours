@@ -3,9 +3,9 @@ from django.views.generic import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponseNotFound, HttpResponseServerError
 
-from data import tours, departures
-from tours.data_helper import find_min_max
-from tours.data_helper import random_limit, filter_tours
+from tours.exceptions import CustomHttp404
+from tours.data.tours_data import tours, departures
+from tours.data_helper import random_limit, filter_tours, find_min_max
 
 
 class MainView(TemplateView):
@@ -24,6 +24,10 @@ class DepartureView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(DepartureView, self).get_context_data(**kwargs)
         departure = kwargs['departure']
+
+        if departure not in departures:
+            raise CustomHttp404('Направление не найдено')
+
         filtered_tours = filter_tours(departure, tours)
         context['tours'] = filtered_tours
         context['from'] = departures[departure]
@@ -38,7 +42,13 @@ class TourView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TourView, self).get_context_data(**kwargs)
-        tour = tours[kwargs['tour_id']]
+
+        tour_id = kwargs['tour_id']
+
+        if tour_id not in tours:
+            raise CustomHttp404('Тур не найден')
+
+        tour = tours[tour_id]
         context['tour'] = tour
         context['stars'] = tour['stars'] * '★'
         context['from'] = departures[tour['departure']]
@@ -46,7 +56,14 @@ class TourView(TemplateView):
 
 
 def custom_handler404(request, exception):
-    return HttpResponseNotFound(render_to_string('404.html'))
+    context = {}
+
+    if isinstance(exception, CustomHttp404):
+        context['error'] = exception.message
+
+    return HttpResponseNotFound(
+        render_to_string('404.html', context=context)
+    )
 
 
 def custom_handler500(request):

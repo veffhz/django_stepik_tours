@@ -1,5 +1,5 @@
-from data import departures
-from data import title, subtitle, description
+from tours.data.tours_data import departures
+from tours.data.tours_data import title, subtitle, description
 
 
 def titles(request):
