@@ -21,7 +21,7 @@
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ tour.country }}: {{ tour.title }}</h5>
                     <p class="card-text">{{ tour.description|truncatechars:150 }}</p>
-                    <a href="%{ url 'tour' tour_id %}" class="btn btn-sm btn-primary mt-auto align-self-start" data-test="tourlink">Подробнее</a>
+                    <a href="{% url 'tour' tour_id %}" class="btn btn-sm btn-primary mt-auto align-self-start" data-test="tourlink">Подробнее</a>
                 </div>
             </div>
         </div>
